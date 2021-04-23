@@ -94,6 +94,7 @@ public class ReaderTCPImpl extends AbsReader {
                 throw new ReadException(
                         "read body is wrong,this socket input stream is end of file read " + bodyLength + " ,that mean this socket is disconnected by server");
             }
+            headerProtocol.setPackLength(headerLength + bodyLength);
             mStateSender.sendBroadcast(IOAction.ACTION_READ_COMPLETE, originalData);
         } catch (Exception e) {
             ReadException readException = new ReadException(e);

@@ -20,6 +20,7 @@ public class ReaderUDPImpl extends AbsReader {
         headBuf.order(mOkOptions.getReadByteOrder());
         try {
             int len = mInputStream.read(buf);
+            headerProtocol.setPackLength(len);
             if (len < headerLength){
                 throw new ReadException(
                         "read head is wrong,this socket input stream is end of file read " + len);
