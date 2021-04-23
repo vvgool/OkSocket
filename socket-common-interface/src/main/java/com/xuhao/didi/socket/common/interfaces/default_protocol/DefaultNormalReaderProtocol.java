@@ -7,7 +7,7 @@ import com.xuhao.didi.core.protocol.IReaderProtocol;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class DefaultNormalReaderProtocol implements IReaderProtocol {
+public class DefaultNormalReaderProtocol extends IReaderProtocol {
 
     @Override
     public int getHeaderLength() {
