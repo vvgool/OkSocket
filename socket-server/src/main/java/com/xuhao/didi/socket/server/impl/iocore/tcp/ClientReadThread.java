@@ -1,4 +1,4 @@
-package com.xuhao.didi.socket.server.impl.iocore;
+package com.xuhao.didi.socket.server.impl.iocore.tcp;
 
 import com.xuhao.didi.core.iocore.interfaces.IReader;
 import com.xuhao.didi.core.iocore.interfaces.IStateSender;

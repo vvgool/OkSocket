@@ -1,10 +1,12 @@
 package com.xuhao.didi.socket.client.sdk.client;
 
 
-import java.net.Socket;
+
+import com.xuhao.didi.core.client.ISocketClient;
+
 
 public abstract class OkSocketFactory {
 
-    public abstract Socket createSocket(ConnectionInfo info, OkSocketOptions options) throws Exception;
+    public abstract ISocketClient createSocket(ConnectionInfo info, OkSocketOptions options) throws Exception;
 
 }

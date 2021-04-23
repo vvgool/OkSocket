@@ -4,26 +4,19 @@ import com.xuhao.didi.core.iocore.interfaces.ISendable;
 import com.xuhao.didi.core.utils.SLog;
 import com.xuhao.didi.socket.client.impl.client.action.ActionHandler;
 import com.xuhao.didi.socket.client.impl.client.iothreads.IOThreadManager;
+import com.xuhao.didi.core.client.ISocketClient;
 import com.xuhao.didi.socket.client.impl.exceptions.ManuallyDisconnectException;
 import com.xuhao.didi.socket.client.impl.exceptions.UnConnectException;
 import com.xuhao.didi.socket.client.sdk.client.ConnectionInfo;
 import com.xuhao.didi.socket.client.sdk.client.OkSocketOptions;
-import com.xuhao.didi.socket.client.sdk.client.OkSocketSSLConfig;
 import com.xuhao.didi.socket.client.sdk.client.action.IAction;
 import com.xuhao.didi.socket.client.sdk.client.connection.AbsReconnectionManager;
 import com.xuhao.didi.socket.client.sdk.client.connection.IConnectionManager;
+import com.xuhao.didi.socket.client.sdk.client.socket.ClientFactory;
 import com.xuhao.didi.socket.common.interfaces.common_interfacies.IIOManager;
-import com.xuhao.didi.socket.common.interfaces.default_protocol.DefaultX509ProtocolTrustManager;
-import com.xuhao.didi.socket.common.interfaces.utils.TextUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.security.SecureRandom;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
 
 /**
  * Created by xuhao on 2017/5/16.
@@ -32,7 +25,7 @@ public class ConnectionManagerImpl extends AbsConnectionManager {
     /**
      * 套接字
      */
-    private volatile Socket mSocket;
+    private volatile ISocketClient mSocket;
     /**
      * socket参配项
      */
@@ -125,54 +118,8 @@ public class ConnectionManagerImpl extends AbsConnectionManager {
         mConnectThread.start();
     }
 
-    private synchronized Socket getSocketByConfig() throws Exception {
-        //自定义socket操作
-        if (mOptions.getOkSocketFactory() != null) {
-            return mOptions.getOkSocketFactory().createSocket(mRemoteConnectionInfo, mOptions);
-        }
-
-        //默认操作
-        OkSocketSSLConfig config = mOptions.getSSLConfig();
-        if (config == null) {
-            return new Socket();
-        }
-
-        SSLSocketFactory factory = config.getCustomSSLFactory();
-        if (factory == null) {
-            String protocol = "SSL";
-            if (!TextUtils.isEmpty(config.getProtocol())) {
-                protocol = config.getProtocol();
-            }
-
-            TrustManager[] trustManagers = config.getTrustManagers();
-            if (trustManagers == null || trustManagers.length == 0) {
-                //缺省信任所有证书
-                trustManagers = new TrustManager[]{new DefaultX509ProtocolTrustManager()};
-            }
-
-            try {
-                SSLContext sslContext = SSLContext.getInstance(protocol);
-                sslContext.init(config.getKeyManagers(), trustManagers, new SecureRandom());
-                return sslContext.getSocketFactory().createSocket();
-            } catch (Exception e) {
-                if (mOptions.isDebug()) {
-                    e.printStackTrace();
-                }
-                SLog.e(e.getMessage());
-                return new Socket();
-            }
-
-        } else {
-            try {
-                return factory.createSocket();
-            } catch (IOException e) {
-                if (mOptions.isDebug()) {
-                    e.printStackTrace();
-                }
-                SLog.e(e.getMessage());
-                return new Socket();
-            }
-        }
+    private synchronized ISocketClient getSocketByConfig() throws Exception {
+        return ClientFactory.createSocketClient(mOptions, mRemoteConnectionInfo);
     }
 
     private class ConnectionThread extends Thread {
@@ -199,7 +146,6 @@ public class ConnectionManagerImpl extends AbsConnectionManager {
                 SLog.i("Start connect: " + mRemoteConnectionInfo.getIp() + ":" + mRemoteConnectionInfo.getPort() + " socket server...");
                 mSocket.connect(new InetSocketAddress(mRemoteConnectionInfo.getIp(), mRemoteConnectionInfo.getPort()), mOptions.getConnectTimeoutSecond() * 1000);
                 //关闭Nagle算法,无论TCP数据报大小,立即发送
-                mSocket.setTcpNoDelay(true);
                 resolveManager();
                 sendBroadcast(IAction.ACTION_CONNECTION_SUCCESS);
                 SLog.i("Socket server: " + mRemoteConnectionInfo.getIp() + ":" + mRemoteConnectionInfo.getPort() + " connect successful!");

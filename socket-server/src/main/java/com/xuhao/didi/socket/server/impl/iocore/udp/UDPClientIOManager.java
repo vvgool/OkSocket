@@ -1,23 +1,25 @@
-package com.xuhao.didi.socket.server.impl.iocore;
+package com.xuhao.didi.socket.server.impl.iocore.udp;
 
 import com.xuhao.didi.core.iocore.ReaderImpl;
 import com.xuhao.didi.core.iocore.WriterImpl;
 import com.xuhao.didi.core.iocore.interfaces.IReader;
 import com.xuhao.didi.core.iocore.interfaces.ISendable;
+import com.xuhao.didi.core.iocore.interfaces.ISocketInputStream;
+import com.xuhao.didi.core.iocore.interfaces.ISocketOutputStream;
 import com.xuhao.didi.core.iocore.interfaces.IStateSender;
 import com.xuhao.didi.core.iocore.interfaces.IWriter;
 import com.xuhao.didi.core.protocol.IReaderProtocol;
-import com.xuhao.didi.socket.common.interfaces.common_interfacies.IIOManager;
+import com.xuhao.didi.socket.server.action.IAction;
 import com.xuhao.didi.socket.server.exceptions.InitiativeDisconnectException;
 import com.xuhao.didi.socket.server.impl.OkServerOptions;
+import com.xuhao.didi.socket.server.impl.clientpojo.IServerIOManager;
+import com.xuhao.didi.socket.server.impl.iocore.tcp.ClientReadThread;
+import com.xuhao.didi.socket.server.impl.iocore.tcp.ClientWriteThread;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+public class UDPClientIOManager implements IServerIOManager<OkServerOptions> {
+    private ISocketInputStream mInputStream;
 
-public class ClientIOManager implements IIOManager<OkServerOptions> {
-    private InputStream mInputStream;
-
-    private OutputStream mOutputStream;
+    private ISocketOutputStream mOutputStream;
 
     private OkServerOptions mOptions;
 
@@ -26,14 +28,11 @@ public class ClientIOManager implements IIOManager<OkServerOptions> {
     private IReader mReader;
 
     private IWriter mWriter;
-
-    private ClientReadThread mClientReadThread;
-
     private ClientWriteThread mClientWriteThread;
 
-    public ClientIOManager(
-            InputStream inputStream,
-            OutputStream outputStream,
+    public UDPClientIOManager(
+            ISocketInputStream inputStream,
+            ISocketOutputStream outputStream,
             OkServerOptions okOptions,
             IStateSender clientStateSender) {
         mInputStream = inputStream;
@@ -45,7 +44,7 @@ public class ClientIOManager implements IIOManager<OkServerOptions> {
 
     private void initIO() {
         assertHeaderProtocolNotEmpty();
-        mReader = new ReaderImpl();
+        mReader = ReaderImpl.newReader(mOptions.getConnectMode());
         mWriter = new WriterImpl();
 
         setOkOptions(mOptions);
@@ -57,15 +56,12 @@ public class ClientIOManager implements IIOManager<OkServerOptions> {
     @Override
     public void startEngine() {
         // do nothing
+        startReadEngine();
+        startWriteEngine();
     }
 
     public void startReadEngine() {
-        if (mClientReadThread != null) {
-            mClientReadThread.shutdown();
-            mClientReadThread = null;
-        }
-        mClientReadThread = new ClientReadThread(mReader, mClientStateSender);
-        mClientReadThread.start();
+        mReader.read();
     }
 
     public void startWriteEngine() {
@@ -78,10 +74,6 @@ public class ClientIOManager implements IIOManager<OkServerOptions> {
     }
 
     private void shutdownAllThread(Exception e) {
-        if (mClientReadThread != null) {
-            mClientReadThread.shutdown(e);
-            mClientReadThread = null;
-        }
         if (mClientWriteThread != null) {
             mClientWriteThread.shutdown(e);
             mClientWriteThread = null;

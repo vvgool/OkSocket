@@ -1,7 +1,6 @@
 package com.xuhao.didi.core.iocore.interfaces;
 
 
-import java.io.OutputStream;
 
 /**
  * Created by xuhao on 2017/5/16.
@@ -9,7 +8,7 @@ import java.io.OutputStream;
 
 public interface IWriter<T extends IIOCoreOptions> {
 
-    void initialize(OutputStream outputStream, IStateSender stateSender);
+    void initialize(ISocketOutputStream outputStream, IStateSender stateSender);
 
     boolean write() throws RuntimeException;
 

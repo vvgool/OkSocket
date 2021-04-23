@@ -1,21 +1,24 @@
 package com.xuhao.didi.socket.server.impl.clientpojo;
 
+import com.xuhao.didi.core.client.ConnectMode;
+import com.xuhao.didi.core.client.ISocketClient;
 import com.xuhao.didi.core.iocore.interfaces.ISendable;
+import com.xuhao.didi.core.iocore.interfaces.ISocketInputStream;
+import com.xuhao.didi.core.iocore.interfaces.ISocketOutputStream;
 import com.xuhao.didi.core.iocore.interfaces.IStateSender;
 import com.xuhao.didi.core.pojo.OriginalData;
 import com.xuhao.didi.core.protocol.IReaderProtocol;
+import com.xuhao.didi.socket.common.interfaces.common_interfacies.IIOManager;
 import com.xuhao.didi.socket.common.interfaces.common_interfacies.server.IClient;
 import com.xuhao.didi.socket.common.interfaces.common_interfacies.server.IClientIOCallback;
 import com.xuhao.didi.socket.server.action.ClientActionDispatcher;
 import com.xuhao.didi.socket.server.action.IAction;
 import com.xuhao.didi.socket.server.exceptions.CacheException;
 import com.xuhao.didi.socket.server.impl.OkServerOptions;
-import com.xuhao.didi.socket.server.impl.iocore.ClientIOManager;
+import com.xuhao.didi.socket.server.impl.iocore.tcp.TCPClientIOManager;
+import com.xuhao.didi.socket.server.impl.iocore.udp.UDPClientIOManager;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +26,7 @@ public class ClientImpl extends AbsClient {
 
     private volatile boolean isDead;
 
-    private ClientIOManager mIOManager;
+    private IServerIOManager mIOManager;
 
     private IStateSender mActionDispatcher;
 
@@ -35,7 +38,7 @@ public class ClientImpl extends AbsClient {
 
     private volatile List<IClientIOCallback> mCallbackList = new ArrayList<>();
 
-    public ClientImpl(Socket socket,
+    public ClientImpl(ISocketClient socket,
                       OkServerOptions okServerOptions) {
         super(socket, okServerOptions);
         mActionDispatcher = new ClientActionDispatcher(this);
@@ -56,15 +59,20 @@ public class ClientImpl extends AbsClient {
     }
 
     private void initIOManager() throws IOException {
-        InputStream inputStream = mSocket.getInputStream();
-        OutputStream outputStream = mSocket.getOutputStream();
-        mIOManager = new ClientIOManager(inputStream, outputStream, mOkServerOptions, mActionDispatcher);
+        ISocketInputStream inputStream = mSocket.getInputStream();
+        ISocketOutputStream outputStream = mSocket.getOutputStream();
+        if (mOkServerOptions.getConnectMode() == ConnectMode.TCP){
+            mIOManager = new TCPClientIOManager(inputStream, outputStream, mOkServerOptions, mActionDispatcher);
+        }else{
+            mIOManager = new UDPClientIOManager(inputStream, outputStream, mOkServerOptions, mActionDispatcher);
+        }
+
     }
 
     public void startIOEngine() {
         if (mIOManager != null) {
             synchronized (mIOManager) {
-                mIOManager.startWriteEngine();
+                mIOManager.startEngine();
             }
         }
     }

@@ -9,13 +9,12 @@ import com.xuhao.didi.core.iocore.interfaces.IStateSender;
 import com.xuhao.didi.core.iocore.interfaces.IWriter;
 import com.xuhao.didi.core.protocol.IReaderProtocol;
 import com.xuhao.didi.core.utils.SLog;
+import com.xuhao.didi.core.iocore.interfaces.ISocketInputStream;
+import com.xuhao.didi.core.iocore.interfaces.ISocketOutputStream;
 import com.xuhao.didi.socket.client.impl.exceptions.ManuallyDisconnectException;
 import com.xuhao.didi.socket.client.sdk.client.OkSocketOptions;
 import com.xuhao.didi.socket.common.interfaces.basic.AbsLoopThread;
 import com.xuhao.didi.socket.common.interfaces.common_interfacies.IIOManager;
-
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Created by xuhao on 2017/5/31.
@@ -23,9 +22,9 @@ import java.io.OutputStream;
 
 public class IOThreadManager implements IIOManager<OkSocketOptions> {
 
-    private InputStream mInputStream;
+    private ISocketInputStream mInputStream;
 
-    private OutputStream mOutputStream;
+    private ISocketOutputStream mOutputStream;
 
     private volatile OkSocketOptions mOkOptions;
 
@@ -43,8 +42,8 @@ public class IOThreadManager implements IIOManager<OkSocketOptions> {
 
     private OkSocketOptions.IOThreadMode mCurrentThreadMode;
 
-    public IOThreadManager(InputStream inputStream,
-                           OutputStream outputStream,
+    public IOThreadManager(ISocketInputStream inputStream,
+                           ISocketOutputStream outputStream,
                            OkSocketOptions okOptions,
                            IStateSender stateSender) {
         mInputStream = inputStream;
@@ -56,7 +55,7 @@ public class IOThreadManager implements IIOManager<OkSocketOptions> {
 
     private void initIO() {
         assertHeaderProtocolNotEmpty();
-        mReader = new ReaderImpl();
+        mReader = ReaderImpl.newReader(mOkOptions.getConnectMode());
         mReader.initialize(mInputStream, mSender);
         mWriter = new WriterImpl();
         mWriter.initialize(mOutputStream, mSender);

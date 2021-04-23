@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.xuhao.didi.core.client.ConnectMode;
 import com.xuhao.didi.core.iocore.interfaces.IPulseSendable;
 import com.xuhao.didi.core.iocore.interfaces.ISendable;
 import com.xuhao.didi.core.pojo.OriginalData;
@@ -146,6 +147,7 @@ public class SimpleDemoActivity extends AppCompatActivity {
         mOkOptions = new OkSocketOptions.Builder()
                 .setReconnectionManager(new NoneReconnect())
                 .setConnectTimeoutSecond(10)
+                .setConnectMode(ConnectMode.UDP)
                 .setCallbackThreadModeToken(new OkSocketOptions.ThreadModeToken() {
                     @Override
                     public void handleCallbackEvent(ActionDispatcher.ActionRunnable runnable) {

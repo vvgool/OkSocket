@@ -1,6 +1,7 @@
 package com.xuhao.didi.socket.server.impl;
 
 
+import com.xuhao.didi.core.client.ConnectMode;
 import com.xuhao.didi.core.iocore.interfaces.IIOCoreOptions;
 import com.xuhao.didi.core.protocol.IReaderProtocol;
 import com.xuhao.didi.socket.common.interfaces.default_protocol.DefaultNormalReaderProtocol;
@@ -13,6 +14,8 @@ public class OkServerOptions implements IIOCoreOptions {
      * 服务器连接能力数
      */
     private int mConnectCapacity;
+
+    private ConnectMode mConnectMode;
     /**
      * 写入Socket管道中的字节序
      */
@@ -50,6 +53,7 @@ public class OkServerOptions implements IIOCoreOptions {
         OkServerOptions okOptions = new OkServerOptions();
         okOptions.mReaderProtocol = new DefaultNormalReaderProtocol();
         okOptions.mConnectCapacity = 50;
+        okOptions.mConnectMode = ConnectMode.TCP;
         okOptions.mMaxReadDataMB = 10;
         okOptions.mWritePackageBytes = 100;
         okOptions.mReadPackageBytes = 50;
@@ -69,6 +73,7 @@ public class OkServerOptions implements IIOCoreOptions {
             OkServerOptions clone = new OkServerOptions();
             clone.mReaderProtocol = options.mReaderProtocol;
             clone.mConnectCapacity = options.mConnectCapacity;
+            clone.mConnectMode = options.mConnectMode;
             clone.mMaxReadDataMB = options.mMaxReadDataMB;
             clone.mWritePackageBytes = options.mWritePackageBytes;
             clone.mReadPackageBytes = options.mReadPackageBytes;
@@ -79,6 +84,11 @@ public class OkServerOptions implements IIOCoreOptions {
 
         public Builder setConnectCapacity(int connectCapacity) {
             mOptions.mConnectCapacity = connectCapacity;
+            return this;
+        }
+
+        public Builder setConnectMode(ConnectMode serverMode){
+            mOptions.mConnectMode = serverMode;
             return this;
         }
 
@@ -122,6 +132,10 @@ public class OkServerOptions implements IIOCoreOptions {
         return mConnectCapacity;
     }
 
+    public ConnectMode getConnectMode(){
+        return mConnectMode;
+    }
+
     @Override
     public ByteOrder getReadByteOrder() {
         return mReadOrder;
@@ -156,4 +170,5 @@ public class OkServerOptions implements IIOCoreOptions {
     public boolean isDebug() {
         return isDebug;
     }
+
 }

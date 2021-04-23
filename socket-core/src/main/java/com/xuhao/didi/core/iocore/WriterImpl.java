@@ -5,6 +5,7 @@ import com.xuhao.didi.core.iocore.interfaces.IIOCoreOptions;
 import com.xuhao.didi.core.iocore.interfaces.IOAction;
 import com.xuhao.didi.core.iocore.interfaces.IPulseSendable;
 import com.xuhao.didi.core.iocore.interfaces.ISendable;
+import com.xuhao.didi.core.iocore.interfaces.ISocketOutputStream;
 import com.xuhao.didi.core.iocore.interfaces.IStateSender;
 import com.xuhao.didi.core.iocore.interfaces.IWriter;
 import com.xuhao.didi.core.utils.BytesUtils;
@@ -26,12 +27,12 @@ public class WriterImpl implements IWriter<IIOCoreOptions> {
 
     private IStateSender mStateSender;
 
-    private OutputStream mOutputStream;
+    private ISocketOutputStream mOutputStream;
 
     private LinkedBlockingQueue<ISendable> mQueue = new LinkedBlockingQueue<>();
 
     @Override
-    public void initialize(OutputStream outputStream, IStateSender stateSender) {
+    public void initialize(ISocketOutputStream outputStream, IStateSender stateSender) {
         mStateSender = stateSender;
         mOutputStream = outputStream;
     }

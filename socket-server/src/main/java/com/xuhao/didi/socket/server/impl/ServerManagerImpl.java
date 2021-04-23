@@ -1,5 +1,7 @@
 package com.xuhao.didi.socket.server.impl;
 
+import com.xuhao.didi.core.client.ConnectMode;
+import com.xuhao.didi.core.client.ISocketClient;
 import com.xuhao.didi.core.utils.SLog;
 import com.xuhao.didi.socket.common.interfaces.basic.AbsLoopThread;
 import com.xuhao.didi.socket.common.interfaces.common_interfacies.server.IClient;
@@ -10,10 +12,11 @@ import com.xuhao.didi.socket.server.exceptions.IllegalAccessException;
 import com.xuhao.didi.socket.server.exceptions.InitiativeDisconnectException;
 import com.xuhao.didi.socket.server.impl.clientpojo.ClientImpl;
 import com.xuhao.didi.socket.server.impl.clientpojo.ClientPoolImpl;
+import com.xuhao.didi.socket.server.impl.server.IServerClient;
+import com.xuhao.didi.socket.server.impl.server.TCPServerClient;
+import com.xuhao.didi.socket.server.impl.server.UDPServerClient;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class ServerManagerImpl extends AbsServerRegisterProxy implements IServerManagerPrivate<OkServerOptions> {
 
@@ -21,7 +24,7 @@ public class ServerManagerImpl extends AbsServerRegisterProxy implements IServer
 
     private int mServerPort = -999;
 
-    private ServerSocket mServerSocket;
+    private IServerClient mServerSocket;
 
     private ClientPoolImpl mClientPoolImpl;
 
@@ -75,7 +78,12 @@ public class ServerManagerImpl extends AbsServerRegisterProxy implements IServer
         }
         try {
             mServerOptions = options;
-            mServerSocket = new ServerSocket(mServerPort);
+            if (options.getConnectMode() == ConnectMode.UDP){
+                mServerSocket = new UDPServerClient(mServerPort);
+            }else{
+                mServerSocket = new TCPServerClient(mServerPort);
+            }
+
             configuration(mServerSocket);
             mAcceptThread = new AcceptThread("server accepting in " + mServerPort);
             mAcceptThread.start();
@@ -112,7 +120,7 @@ public class ServerManagerImpl extends AbsServerRegisterProxy implements IServer
 
         @Override
         protected void runInLoopThread() throws Exception {
-            Socket socket = mServerSocket.accept();
+            ISocketClient socket = mServerSocket.accept();
             ClientImpl client = new ClientImpl(socket, mServerOptions);
             client.setClientPool(mClientPoolImpl);
             client.setServerStateSender(ServerManagerImpl.this);
@@ -128,7 +136,7 @@ public class ServerManagerImpl extends AbsServerRegisterProxy implements IServer
     }
 
 
-    private void configuration(ServerSocket serverSocket) {
+    private void configuration(IServerClient serverSocket) {
         //TODO 待细化配置
     }
 

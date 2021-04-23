@@ -1,5 +1,6 @@
 package com.xuhao.didi.socket.server.impl.clientpojo;
 
+import com.xuhao.didi.core.client.ISocketClient;
 import com.xuhao.didi.core.pojo.OriginalData;
 import com.xuhao.didi.core.protocol.IReaderProtocol;
 import com.xuhao.didi.socket.common.interfaces.common_interfacies.server.IClient;
@@ -19,7 +20,7 @@ public abstract class AbsClient implements IClient, ClientActionDispatcher.Clien
 
     protected InetAddress mInetAddress;
 
-    protected Socket mSocket;
+    protected ISocketClient mSocket;
 
     protected String mUniqueTag;
 
@@ -29,7 +30,7 @@ public abstract class AbsClient implements IClient, ClientActionDispatcher.Clien
 
     private List<OriginalData> mCacheForNotPrepare = new ArrayList<>();
 
-    public AbsClient(Socket socket, OkServerOptions okServerOptions) {
+    public AbsClient(ISocketClient socket, OkServerOptions okServerOptions) {
         this.mOkServerOptions = okServerOptions;
         this.mSocket = socket;
         this.mInetAddress = mSocket.getInetAddress();
@@ -39,11 +40,13 @@ public abstract class AbsClient implements IClient, ClientActionDispatcher.Clien
 
     @Override
     public String getHostIp() {
+        if (mInetAddress == null) return null;
         return mInetAddress.getHostAddress();
     }
 
     @Override
     public String getHostName() {
+        if (mInetAddress == null) return null;
         return mInetAddress.getCanonicalHostName();
     }
 

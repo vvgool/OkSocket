@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.xuhao.didi.core.client.ConnectMode;
 import com.xuhao.didi.core.iocore.interfaces.ISendable;
 import com.xuhao.didi.core.pojo.OriginalData;
 import com.xuhao.didi.core.utils.SLog;
@@ -148,7 +149,10 @@ public class DemoActivity extends AppCompatActivity implements IClientIOCallback
             @Override
             public void onClick(View v) {
                 if (!mServerManager.isLive()) {
-                    mServerManager.listen();
+                    OkServerOptions options = new OkServerOptions.Builder()
+                            .setConnectMode(ConnectMode.UDP)
+                            .build();
+                    mServerManager.listen(options);
                 } else {
                     mServerManager.shutdown();
                 }

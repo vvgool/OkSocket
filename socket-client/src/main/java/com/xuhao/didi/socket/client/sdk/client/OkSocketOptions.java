@@ -1,5 +1,6 @@
 package com.xuhao.didi.socket.client.sdk.client;
 
+import com.xuhao.didi.core.client.ConnectMode;
 import com.xuhao.didi.core.iocore.interfaces.IIOCoreOptions;
 import com.xuhao.didi.core.protocol.IReaderProtocol;
 import com.xuhao.didi.socket.client.impl.client.action.ActionDispatcher;
@@ -60,6 +61,11 @@ public class OkSocketOptions implements IIOCoreOptions {
      * 脉搏频率单位是毫秒
      */
     private long mPulseFrequency;
+
+    /**
+     * 连接方式
+     */
+    private ConnectMode mConnectMode;
     /**
      * 脉搏丢失次数<br>
      * 大于或等于丢失次数时将断开该通道的连接<br>
@@ -178,6 +184,11 @@ public class OkSocketOptions implements IIOCoreOptions {
 
         public Builder setPulseFrequency(long pulseFrequency) {
             mOptions.mPulseFrequency = pulseFrequency;
+            return this;
+        }
+
+        public Builder setConnectMode(ConnectMode clientMode){
+            mOptions.mConnectMode = clientMode;
             return this;
         }
 
@@ -326,6 +337,10 @@ public class OkSocketOptions implements IIOCoreOptions {
         return mPulseFrequency;
     }
 
+    public ConnectMode getConnectMode(){
+        return mConnectMode;
+    }
+
     public OkSocketSSLConfig getSSLConfig() {
         return mSSLConfig;
     }
@@ -395,6 +410,7 @@ public class OkSocketOptions implements IIOCoreOptions {
     public static OkSocketOptions getDefault() {
         OkSocketOptions okOptions = new OkSocketOptions();
         okOptions.mPulseFrequency = 5 * 1000;
+        okOptions.mConnectMode = ConnectMode.TCP;
         okOptions.mIOThreadMode = IOThreadMode.DUPLEX;
         okOptions.mReaderProtocol = new DefaultNormalReaderProtocol();
         okOptions.mMaxReadDataMB = 5;
@@ -426,4 +442,5 @@ public class OkSocketOptions implements IIOCoreOptions {
          */
         DUPLEX;
     }
+
 }

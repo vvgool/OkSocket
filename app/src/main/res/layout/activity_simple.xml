@@ -59,7 +59,7 @@
                         android:inputType="text"
                         android:lines="1"
                         android:maxLines="1"
-                        android:text="104.238.184.237" />
+                        android:text="172.18.1.131" />
 
                 </android.support.design.widget.TextInputLayout>
 

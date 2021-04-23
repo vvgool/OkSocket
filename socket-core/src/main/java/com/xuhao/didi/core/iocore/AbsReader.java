@@ -3,6 +3,7 @@ package com.xuhao.didi.core.iocore;
 
 import com.xuhao.didi.core.iocore.interfaces.IIOCoreOptions;
 import com.xuhao.didi.core.iocore.interfaces.IReader;
+import com.xuhao.didi.core.iocore.interfaces.ISocketInputStream;
 import com.xuhao.didi.core.iocore.interfaces.IStateSender;
 
 import java.io.IOException;
@@ -18,13 +19,13 @@ public abstract class AbsReader implements IReader<IIOCoreOptions> {
 
     protected IStateSender mStateSender;
 
-    protected InputStream mInputStream;
+    protected ISocketInputStream mInputStream;
 
     public AbsReader() {
     }
 
     @Override
-    public void initialize(InputStream inputStream, IStateSender stateSender) {
+    public void initialize(ISocketInputStream inputStream, IStateSender stateSender) {
         mStateSender = stateSender;
         mInputStream = inputStream;
     }
