@@ -112,7 +112,7 @@ public class UDPClientIOManager implements IServerIOManager<OkServerOptions> {
             throw new IllegalArgumentException("The reader protocol can not be Null.");
         }
 
-        if (protocol.getHeaderLength() == 0) {
+        if (protocol.getHeaderLength() < 0) {
             throw new IllegalArgumentException("The header length can not be zero.");
         }
     }
