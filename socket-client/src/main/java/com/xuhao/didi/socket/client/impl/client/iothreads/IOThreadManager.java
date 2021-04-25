@@ -1,6 +1,7 @@
 package com.xuhao.didi.socket.client.impl.client.iothreads;
 
 
+import com.xuhao.didi.core.client.ConnectMode;
 import com.xuhao.didi.core.iocore.ReaderImpl;
 import com.xuhao.didi.core.iocore.WriterImpl;
 import com.xuhao.didi.core.iocore.interfaces.IReader;
@@ -145,8 +146,11 @@ public class IOThreadManager implements IIOManager<OkSocketOptions> {
             throw new IllegalArgumentException("The reader protocol can not be Null.");
         }
 
-        if (protocol.getHeaderLength() == 0) {
+        if (mOkOptions.getConnectMode() != ConnectMode.UDP && protocol.getHeaderLength() == 0) {
             throw new IllegalArgumentException("The header length can not be zero.");
+        }
+        if (mOkOptions.getConnectMode() == ConnectMode.UDP && protocol.getHeaderLength() < 0){
+            throw new IllegalArgumentException("The header udp length can not litter zero.");
         }
     }
 
