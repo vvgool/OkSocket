@@ -62,9 +62,7 @@ public class ReaderUDPImpl extends AbsReader {
             }
             mStateSender.sendBroadcast(IOAction.ACTION_READ_COMPLETE, originalData);
         }catch (Exception e) {
-            ReadException readException = new ReadException(e);
             e.printStackTrace();
-            if (mInputStream.isClose()) throw readException;
         }
     }
 }
